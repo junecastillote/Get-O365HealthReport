@@ -1,0 +1,241 @@
+"ID","Classification","Title","Workload","Status","StartTime","LastUpdatedTime","EndTime","ActionType","AffectedTenantCount","Message","MessageType","WorkloadDisplayName","Feature","FeatureDisplayName","PostIncidentDocumentUrl","Severity","ImpactDescription"
+"TM151064","Advisory","Problems accessing or using Microsoft Teams","microsoftteams","Service restored","10/13/2018 10:10:00 AM","10/11/2018 1:24:00 PM","10/13/2018 12:53:22 PM",,"3795228","Title: Problems accessing or using Microsoft Teams
+
+User impact: Users may have been unable to access Microsoft Teams or change users settings.
+
+
+More info: Impact was limited to users in the Eastern United States only.
+
+Final status: A portion of infrastructure that facilitates connectivity to the Microsoft Teams service was in a degraded state. We've re-routed traffic to alternate infrastructure to remediate this issue. 
+
+Scope of impact: Impact was specific to a subset of users who were served through the affected infrastructure.
+
+Start time: Saturday, October 13, 2018, at 2:10 AM UTC
+
+End time: Saturday, October 13, 2018, at 2:35 AM UTC
+
+Preliminary root cause: A portion of infrastructure that facilitates connectivity to the Microsoft Teams service was in a degraded state.
+
+Next steps:
+- We're analyzing performance data and trends on the affected systems to help prevent this problem from happening again.
+
+This is the final update for the event.","Incident","Microsoft Teams","TeamsComponents","Teams Components",,"Sev2","Users may have been unable to access Microsoft Teams or change users settings."
+"MO151018","Advisory","Can't update or purchase subscriptions","OSDPPlatform","Service restored","10/13/2018 3:00:00 AM","10/11/2018 6:51:11 AM","10/13/2018 6:00:00 AM",,"19002338","Title: Can't update or purchase subscriptions
+
+User Impact: Admins may have been intermittently unable to access the ""Payment Methods and Subscriptions"" pages.
+
+More info: Additionally, admins may have been unable to purchase new Intune or other Microsoft 365 subscriptions.
+
+Final status: We've successfully rerouted traffic to alternative infrastructure and performed tests to confirm that the issue is resolved. 
+
+Scope of impact: This issue could have potentially affected any of your users intermittently if they were routed through the affected infrastructure.
+
+Start time: Friday, October 12, 2018, at 6:00 PM UTC
+
+End time: Friday, October 12, 2018, at 10:00 PM UTC
+
+Preliminary root cause: A portion of service infrastructure that hosts the payment systems for Microsoft 365 subscriptions became degraded.
+
+Next steps:
+- We're analyzing diagnostic data and performance trends on the affected systems to help prevent this problem from happening again.
+- We?re reviewing our monitoring features and automated recovery options to reduce or avoid similar impact in the future.
+
+This is the final update for the event.","Incident","Office 365 Portal","PurchaseAndBilling","Purchase and Billing",,"Sev2","Admins may have been intermittently unable to access the ""Payment Methods and Subscriptions"" pages."
+"SP148979","Advisory","Issues with search schema settings","SharePoint","Restoring service","9/21/2018 2:00:00 PM","10/11/2018 11:21:48 PM",,,"10804457","Title: Issues with search schema settings
+
+User Impact: Administrators may be unable to perform changes to search schema settings.
+
+Current status: Our deployment has begun and is progressing as expected. We'll continue to monitor this process to ensure that it continues without issue.
+
+Scope of impact: This issue may potentially affect any of your administrators attempting to change search schema settings.
+
+Start time: Friday, September 21, 2018, at 6:00 AM UTC
+
+Estimated time to resolve: We expect that the deployment of the fix will complete by 10:00 PM UTC on Friday, October 19, 2018.
+
+Preliminary root cause: A code issue caused the infrastructure responsible for search and indexing to become degraded.
+
+Next update by: Friday, October 19, 2018, at 6:30 PM UTC","Incident","SharePoint Online","search","Search and Delve",,"Sev2","Administrators may be unable to perform changes to search schema settings."
+"MO150832","Incident","Microsoft 365 service and portal access issues","OSDPPlatform","Service restored","10/11/2018 11:59:00 PM","10/11/2018 4:36:36 AM","10/12/2018 2:35:00 AM",,"19122495","Title: Microsoft 365 service and portal access issues
+
+User Impact: Admins may be intermittently unable to access the Microsoft 365 portal.
+
+More info: Additionally, admins may be unable to access the partner center or Azure portal.
+
+Current status: We're performing tests and gathering diagnostic data in an effort to isolate the source of the issue. 
+
+Scope of impact: This issue may potentially affect any admins attempting to access the Microsoft 365 portal. 
+
+Next update by: Thursday, October 11, 2018, at 6:00 PM UTC","Incident","Office 365 Portal","Portal","Portal",,"Sev2","Admins and users may have been intermittently unable to access the Microsoft 365 portal or Microsoft 365 services."
+"TM150593","Advisory","Intermittent functionality issues within Microsoft Teams client","microsoftteams","Service restored","10/9/2018 10:12:00 PM","10/11/2018 2:16:41 PM","10/10/2018 2:15:00 AM",,"3795228","Title: Intermittent functionality issues within Microsoft Teams client
+
+User Impact: Users may have seen one or more Microsoft Teams features not functioning or not available.
+
+More info: Impacted features included but were not limited to: ?Call? and ?Meeting? tabs may have disappeared, contact presence data may have been inaccurate, files couldn't be edited or opened, couldn't schedule or update meetings, Meet Now wasn't displayed, users may have been prompted for credentials that resulted in the user no longer being able to sign in, CVI (Cloud Video Interop) Dialing Instructions weren't visible and required users to be manually invited to join the client meetings, ""Call Info"" was grayed out on pre-scheduled meetings, couldn't create Teams or view Teams suggestions, or the tenant switcher feature may have disappeared.
+
+Final status: We've verified that impact has been mitigated by routing traffic to alternate service infrastructure.
+
+Scope of impact: Any user attempting to access Microsoft Teams via the client application may have been impacted.
+
+Start time: Tuesday, October 9, 2018, at 12:55 PM UTC
+
+End time: Tuesday, October 9, 2018, at 6:15 PM UTC
+
+Preliminary root cause: A large and unexpected increase in traffic had caused the service to perform below acceptable thresholds.
+
+Next steps:
+- We?re reviewing our code for improved performance and potential automated recovery options to reduce or avoid similar impact in the future.
+
+This is the final update for the event.","Incident","Microsoft Teams","TeamsComponents","Teams Components",,"Sev2","Users may have seen one or more Microsoft Teams features not functioning or not available."
+"TM150582","Advisory","Microsoft Teams access issues","microsoftteams","Service restored","10/9/2018 12:00:00 PM","10/11/2018 9:59:31 PM","10/9/2018 7:50:00 PM",,"3795228","Title: Microsoft Teams access issues
+
+User Impact: Users may have been unable to access Microsoft Teams.
+
+More info: Users may have seen the error page stating 'Doh! Something went wrong... Try again'.
+
+Final status: We've determined that a subset of sign in infrastructure was performing below acceptable thresholds, impacting access to the Microsoft Teams service. We've reconfigured the service and confirmed that impact has remediated after monitoring the environment.
+
+Scope of impact: Impact was specific to users located in the UK and Western European regions.
+
+Start time: Tuesday, October 9, 2018, at 4:00 AM UTC
+
+End time: Tuesday, October 9, 2018, at 11:50 AM UTC
+
+Preliminary root cause: A subset of sign in infrastructure was performing below acceptable thresholds, impacting access to the Microsoft Teams service.
+
+Next steps:
+- We're analyzing performance data and trends on the affected sign in infrastructure to help prevent this problem from happening again.
+
+This is the final update for the event.","Incident","Microsoft Teams","TeamsComponents","Teams Components",,"Sev1","Users may have been unable to access Microsoft Teams."
+"MO150201","Advisory","Admin usage report delay","OSDPPlatform","Service restored","10/1/2018 10:00:00 PM","10/11/2018 1:50:01 PM","10/8/2018 8:00:00 PM",,"19122495","Title: Admin usage report delay
+
+User Impact: Admins were unable to retrieve updated usage reports for mailbox usage and group activity usage.
+
+Final status: We deployed a fix to remediate impact, and confirmed that the backlog of usage report data has been processed.
+
+Scope of impact: Admins may have been unable to receive updated usage report information for mailbox usage and group activity usage for data past October 1, 2018.
+
+Start time: Monday, October 1, 2018, at 2:00 PM UTC
+
+End time: Monday, October 8, 2018, at 12:00 PM UTC
+
+Preliminary root cause: A data processing job became unresponsive, which caused delays in gathering usage report data.
+
+Next steps:
+- We're reviewing our data processing operation procedures to find ways to prevent this problem from happening again.
+
+This is the final update for the event.","Incident","Office 365 Portal","Administration","Administration",,"Sev2","Admins were unable to retrieve updated usage reports for mailbox usage and group activity usage."
+"LY150481","Incident","Can't dial-in to conference meetings via South African toll numbers","Lync","Service restored","10/11/2018 9:31:00 PM","10/9/2018 1:05:03 AM","10/9/2018 12:36:28 AM",,"7764387","Title: Can't dial-in to conference meetings via South African toll numbers 
+
+User impact: Public Switched Telephone Network (PSTN) users were unable to dial-in to conferences via South African toll numbers.
+
+More info: Toll-free numbers were unaffected. 
+
+Final status: We've determined that a number translation issue between PSTN providers unexpectedly caused impact to dial-in conference meetings for South African toll numbers. We've received confirmation from one PSTN provider that they've addressed the number translation issue and that impact has been mitigated. 
+
+Scope of impact: This issue may have potentially affected any PSTN users attempting to dial-in to conference meetings via South African toll numbers. 
+
+Start time: Monday, October 8, 2018, at 1:31 PM UTC
+
+End time: Monday, October 8, 2018, at 3:29 PM UTC
+
+Preliminary root cause: A number translation issue between PSTN providers unexpectedly caused impact to dial-in conference meetings for South African toll numbers.
+
+Next steps:
+- We're working with our PSTN providers to determine how the number translation issue was introduced and what mitigation steps were taken on their side to remediate the issue in order to find ways to prevent this problem from reoccurring.
+
+This is the final update for the event.","Incident","Skype for Business","DialInConferencing","Dial-In Conferencing",,"Sev1","Public Switched Telephone Network (PSTN) users were unable to dial-in to conferences via South African toll numbers."
+"MO149964","Advisory","Usage report issue","OSDPPlatform","Service restored","9/24/2018 8:00:00 PM","10/11/2018 3:07:20 PM","10/5/2018 6:00:00 AM",,"19002338","Title: Usage report issue
+
+User Impact: Administrators were unable to retrieve usage reports from the Microsoft 365 Admin Center.
+
+More info: Usage reports were only showing data up until the 24th September 2018.
+
+Final status: We've updated the configuration file to fix the affected databases, which resolved the underlying cause of the issue. Additionally, we've processed the backlog of requests and have confirmed with some of the affected users that impact has been remediated.
+
+Scope of impact: Impact was specific to administrators attempting to retrieve usage reports.
+
+Start time: Monday, September 24, 2018, at 12:00 PM UTC
+
+End time: Thursday, October 4, 2018, at 10:00 PM UTC
+
+Preliminary root cause: A storage performance issue caused the usage reports to display stale data.
+
+Next steps:
+- We're analyzing performance data and trends on the affected systems to help prevent this problem from happening again.
+
+This is the final update for the event.","Incident","Office 365 Portal","Administration","Administration",,"Sev1","Administrators were unable to retrieve usage reports from the Microsoft 365 Admin Center."
+"MO150181","Advisory","Office Activation issue","OSDPPlatform","Service restored","10/4/2018 10:47:00 PM","10/11/2018 12:59:37 AM","10/5/2018 12:59:37 AM",,"19122495","Title: Office Activation issue
+
+User Impact: Admins may have been unable to activate Microsoft 365 licenses.
+
+Final status: We've identified a network issue that was preventing some admins from activating Microsoft 365 licenses. We applied a configuration update allowing our systems to better process traffic, and we've confirmed that this action has mitigated impact.
+
+Scope of impact: This issue was specific to admins that were attempting to activate Microsoft 365 licenses.
+
+Start time: Thursday, October 4, 2018, at 2:47 PM UTC
+
+End time: Thursday, October 4, 2018, at 4:17 PM UTC
+
+Preliminary root cause: A network issue resulted in some license activation requests being throttled, and subsequently failing in some scenarios.
+
+Next steps:
+- We?re analyzing data captured during the event to better understand the circumstances that led to impact, and prevent any future occurrences of this problem.
+
+This is the final update for the event.","Incident","Office 365 Portal","Administration","Administration",,"Sev2","Admins may have been unable to activate Microsoft 365 licenses."
+"TM150015","Advisory","Unable to join video meetings","microsoftteams","Service restored","10/4/2018 6:56:00 AM","10/11/2018 8:17:09 AM","10/4/2018 7:53:00 AM",,"3795228","Title: Unable to join video meetings
+
+User Impact: Users may have been unable to join Microsoft Teams video meetings via Telecom 2.0 Cloud Video Interop (CVI) devices. 
+
+Final status: We've determined that an endpoint targeting configuration issue prevented users from joining video meetings. We've corrected the configuration problem and after a period of testing have confirmed that the issue is resolved.? 
+
+Scope of impact: Any user attempting to join Microsoft Teams video meetings using Telecom 2.0 CVI devices may have experienced impact. 
+
+Start time: Wednesday, October 3, 2018, at 10:56 PM UTC
+
+End time: Wednesday, October 3, 2018, at 11:53 PM UTC
+
+Preliminary root cause: An endpoint targeting configuration issue prevented users from joining Teams video meetings via Telecom 2.0 Cloud Video Interop (CVI) devices. 
+
+Next steps:
+We're reviewing our monitoring services to look for ways to reduce detection time and more quickly restore service.
+
+This is the final update for the event.","Incident","Microsoft Teams","TeamsComponents","Teams Components",,"Sev2","Users may have been unable to join Microsoft Teams video meetings via Telecom 2.0 Cloud Video Interop (CVI) devices. "
+"TM149267","Advisory","Can't add guest members and problem using Guest Access","microsoftteams","Service restored","9/14/2018 6:58:00 AM","10/11/2018 11:21:54 PM","10/3/2018 5:07:00 AM",,"3808874","Title: Can't add guest members and problem using Guest Access
+
+User Impact: Users may have been unable to add guest members to Microsoft Teams.
+
+More info: Additionally, admins may have been unable to change the Guest Access option in the Microsoft Teams admin center. Specifically, the Guest Access function may have appeared to be working, but the feature wasn't executing the change as expected.
+
+Final status: The fix deployment has?saturated through?all affected infrastructure,?which?resolved?the issue.
+
+Scope of impact: Your organization was affected by this event, and all users?that?attempted?to add guests or use the Guest Access feature may have experienced the impact listed. 
+
+Start time: Thursday, September 13, 2018, at 10:58 PM UTC
+
+End time: Tuesday, October 2, 2018, at 9:07 PM UTC
+
+Preliminary root cause: An update made to the Microsoft Teams client, which was intended improve admin center functionality, was inadvertently causing an issue with adding guests to Teams.
+
+Next steps:
+- We're reviewing our update procedures to better identify similar issues during our development and testing cycles.
+
+This is the final update for the event.","Incident","Microsoft Teams","TeamsComponents","Teams Components",,"Sev2","Users may have been unable to add guest members to Microsoft Teams."
+"LY149249","Advisory","Dial plan issue","Lync","Service restored","9/25/2018 1:55:00 AM","10/11/2018 12:53:16 AM","10/1/2018 4:17:00 PM",,"7716186","Title: Dial plan issue
+
+User Impact: Admins were unable to create dial plans or assign new users to dial plans within the Skype for Business service.
+
+Final status: We've verified that deployment has completed and our monitoring has indicated that service has been restored.
+
+Scope of impact: Impact was specific to admins that were attempting to create dial plans or add users to dial plans.
+
+Start time: Monday, September 24, 2018, at 5:55 PM UTC
+
+End time: Monday, October 1, 2018, at 8:17 AM UTC
+
+Preliminary root cause: A recent update intended to improve service performance within Skype for Business unexpectedly caused impact to executing dial plan-specific commands in Windows PowerShell.
+
+Next steps:
+- We're reviewing our update procedures for Windows PowerShell to better identify similar issues during our development and testing cycles.
+
+This is the final update for the event.","Incident","Skype for Business","ManagementandProvisioning","Management and Provisioning",,"Sev2","Admins were unable to create dial plans or assign new users to dial plans within the Skype for Business service."
