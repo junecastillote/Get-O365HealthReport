@@ -10,7 +10,6 @@
 
 	.LINK
 		https://www.lazyexchangeadmin.com/2018/10/shd365.html
-		https://github.com/junecastillote/Get-o365HealthReport
 
 	.SYNOPSIS
 		This script utilize the Office 365 Management API v2 to retrieve the service health status
@@ -19,7 +18,6 @@
 	.DESCRIPTION
 		For more details and usage instruction, please visit the link:
 		https://www.lazyexchangeadmin.com/2018/10/shd365.html
-		https://github.com/junecastillote/Get-o365HealthReport
 		
 		
 		
@@ -273,7 +271,7 @@ if (Test-Path $oldCSV){
 		$mail_Body2 += '<tr><th><center>----END of REPORT----</center></th></tr></table></p>'
 		$mail_Body2 += '<p><font size="2" face="Tahoma"><br />'
 		$mail_Body2 += '<br />'
-		$mail_Body2 += '<p><a href="https://www.lazyexchangeadmin.com/2018/10/shd365.html">Office365 Events Monitor v.'+ $scriptVersion +'</a></p>'
+		$mail_Body2 += '<p><a href="https://www.lazyexchangeadmin.com/2018/10/shd365.html">Get-O365HealthReport v.'+ $scriptVersion +'</a></p>'
 		$mail_body2 += '</body>'
 		$mail_body2 += '</html>'
 		$mail_Body2 = $mail_Body2 -join "`n"
