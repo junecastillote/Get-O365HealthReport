@@ -354,9 +354,12 @@ catch {
 }
 }
 }
-if ( $config.options.testMode -eq $false){
-	Write-Host "Old Records File is not found. This is considered as first run. No report is generated or sent."
+else{
+	if ( $config.options.testMode -eq $false){
+		Write-Host "Old Records File is not found. This is considered as first run. No report is generated or sent."
+	}
 }
+
 
 Rename-Item $newCSV $oldCSV
 Stop-Transcript
