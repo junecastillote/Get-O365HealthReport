@@ -10,6 +10,7 @@
 
 	.LINK
 		https://www.lazyexchangeadmin.com/2018/10/shd365.html
+		https://github.com/junecastillote/Get-O365HealthReport
 
 	.SYNOPSIS
 		This script utilize the Office 365 Management API v2 to retrieve the service health status
@@ -18,6 +19,7 @@
 	.DESCRIPTION
 		For more details and usage instruction, please visit the link:
 		https://www.lazyexchangeadmin.com/2018/10/shd365.html
+		https://github.com/junecastillote/Get-O365HealthReport
 		
 		
 		
@@ -87,7 +89,10 @@ try {
 	$body = @{grant_type="client_credentials";resource="https://manage.office.com";client_id=$ClientID;client_secret=$ClientSecret}
 	$oauth = Invoke-RestMethod -Method Post -Uri "https://login.microsoftonline.com/$($tenantdomain)/oauth2/token?api-version=1.0" -Body $body
 	$headerParams = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
+	
+	#Why no filter? Because at the time of writing this code, filters are not working for the v2 API.
 	$messages = (Invoke-RestMethod -Uri "https://manage.office.com/api/v1.0/$($tenantdomain)/ServiceComms/Messages" -Headers $headerParams -Method Get)
+	
 	#$services = (Invoke-RestMethod -Uri "https://manage.office.com/api/v1.0/$($tenantdomain)/ServiceComms/Services" -Headers $headerParams -Method Get -Verbose)
 	#$currentStatus = (Invoke-RestMethod -Uri "https://manage.office.com/api/v1.0/$($tenantdomain)/ServiceComms/CurrentStatus" -Headers $headerParams -Method Get -Verbose)
 	#$historicalstatus = (Invoke-RestMethod -Uri "https://manage.office.com/api/v1.0/$($tenantdomain)/ServiceComms/HistoricalStatus" -Headers $headerParams -Method Get -Verbose)
@@ -137,7 +142,7 @@ foreach ($message in $incidents){
 $newResult | Sort-Object LastUpdatedTime -Descending | export-Csv -notypeInformation $newCSV
 
 #this import is to makes sure that the comparison between new and old records are as accurate as possible
-#if not imported, the comparison fails and all records are treated as new
+#if not imported, the comparison fails and all retrieved records are treated as new
 $newResult = Import-Csv $newCSV
 #=======
 
@@ -227,7 +232,6 @@ if (Test-Path $oldCSV){
 			$mail_Body2 += '<table id="HeadingInfo"><th>' + $mailSubject + '<br />' + $tenantdomain + '<br />' + ('{0:dd-MMM-yyyy H:mm}' -f (get-date)) + '</th></table><hr>'
 		}
 
-		#$mail_Body2 += '<table id="HeadingInfo"><th>' + $mailSubject + '<br />' + $tenantdomain + '<br />' + ('{0:dd-MMM-yyyy H:mm}' -f (get-date)) + '</th></table><hr>'
 		$mail_Body2 += '<table id="section"><tr><th width="2%"><img src="image/advisory.png" width="18" height="18"></th><th width="5%">Advisory</th><th width="2%"><img src="image/incident.png" width="18" height="18"></th><th width="5%">Incident</th><th width="2%"><img src="image/healthy.png" width="18" height="18"></th><th width="84%">Restored</th></tr></table>'
 				
 		foreach ($record in $updatedRecord)
@@ -271,7 +275,7 @@ if (Test-Path $oldCSV){
 		$mail_Body2 += '<tr><th><center>----END of REPORT----</center></th></tr></table></p>'
 		$mail_Body2 += '<p><font size="2" face="Tahoma"><br />'
 		$mail_Body2 += '<br />'
-		$mail_Body2 += '<p><a href="https://www.lazyexchangeadmin.com/2018/10/shd365.html">Get-O365HealthReport v.'+ $scriptVersion +'</a></p>'
+		$mail_Body2 += '<p><a href="https://github.com/junecastillote/Get-O365HealthReport">Get-O365HealthReport v.'+ $scriptVersion +'</a></p>'
 		$mail_body2 += '</body>'
 		$mail_body2 += '</html>'
 		$mail_Body2 = $mail_Body2 -join "`n"
@@ -359,7 +363,6 @@ else{
 		Write-Host "Old Records File is not found. This is considered as first run. No report is generated or sent."
 	}
 }
-
 
 Rename-Item $newCSV $oldCSV
 Stop-Transcript
