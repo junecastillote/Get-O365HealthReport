@@ -5,7 +5,7 @@
 	 Created by:   	June Castillote
 					june.castillote@gmail.com
 	 Filename:     	Get-o365HealthReport.ps1
-	 Version:		1.0 (7-August-2018)
+	 Version:		1.1 (28-November-2018)
 	===========================================================================
 
 	.LINK
@@ -19,8 +19,7 @@
 	.DESCRIPTION
 		For more details and usage instruction, please visit the link:
 		https://www.lazyexchangeadmin.com/2018/10/shd365.html
-		https://github.com/junecastillote/Get-O365HealthReport
-		
+		https://github.com/junecastillote/Get-O365HealthReport		
 		
 		
 	.EXAMPLE
@@ -29,7 +28,7 @@
 #>
 
 #Requires -Version 4.0
-$scriptVersion = "1.0"
+$scriptVersion = "1.1"
 
 #get root path of the script
 $script_root = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
@@ -106,6 +105,7 @@ catch {
 	EXIT
 }
 # Office 365 Management API ends here
+
 
 #compile new results
 $newResult = @()
@@ -216,78 +216,57 @@ if (Test-Path $oldCSV){
 	$updatedRecord | Export-Csv -noTypeInformation $updatedCSV
 	
 	#create the report
-	if ($updatedRecord) {
-		$mail_Body1 = @()
-		$mail_Body2 = @()
-		Write-Host "Writing Report"
-		$mailSubject = $config.options.mailSubject
-		$mail_Body1 = "<html><head><title>$($mailSubject)</title>"
-		$mail_Body1 = $mail_Body1 -join "`n" #convert to multiline string
-		$mail_Body2 += "</head><body>"
-
-		if ( $config.options.testMode -eq $true){
-			$mail_Body2 += '<table id="HeadingInfo"><th>' + $mailSubject + '<br />' + $tenantdomain + '<br />' + ('{0:dd-MMM-yyyy H:mm}' -f (get-date)) + '<br />[TEST MODE]</th></table><hr>'
-		}
-		else {
-			$mail_Body2 += '<table id="HeadingInfo"><th>' + $mailSubject + '<br />' + $tenantdomain + '<br />' + ('{0:dd-MMM-yyyy H:mm}' -f (get-date)) + '</th></table><hr>'
-		}
-
-		$mail_Body2 += '<table id="section"><tr><th width="2%"><img src="image/advisory.png" width="18" height="18"></th><th width="5%">Advisory</th><th width="2%"><img src="image/incident.png" width="18" height="18"></th><th width="5%">Incident</th><th width="2%"><img src="image/healthy.png" width="18" height="18"></th><th width="84%">Restored</th></tr></table>'
+	if ($updatedRecord) {		
 				
-		foreach ($record in $updatedRecord)
-		{	
-			$mail_Body2 += "<hr>"
-			#advisory + restored
-			if ($record.Classification -eq 'Advisory' -and $record.Status -eq "Service Restored"){
-				$mail_Body2 += '<table id="section"><tr><th width="5%"><img src="image/advisory.png" alt="Advisory"><img src="image/healthy.png" alt="Restored"></th><th width="95%">' + $record.WorkloadDisplayName +' | ' + $record.ID + ' | ' + $record.Title + '</th></tr></table>'
+		foreach ($record in $updatedRecord)	{
+			
+			$mail_Body1 = @()
+			$mail_Body2 = @()
+			#Write-Host "Writing Report"
+			$mailSubject = $record.ID + ' | ' + $record.WorkloadDisplayName +' | ' + $record.Title
+			if ( $config.options.testMode -eq $true){
+				$mailSubject = "[TEST MODE] | " + $mailSubject
 			}
-			#advisory + ongoing
-			elseif ($record.Classification -eq 'Advisory' -and $record.Status -ne "Service Restored"){
-				$mail_Body2 += '<table id="section"><tr><th width="5%"><img src="image/advisory.png" alt="Advisory"></th><th width="95%">' + $record.WorkloadDisplayName +' | ' + $record.ID + ' | ' + $record.Title + '</th></tr></table>'
-			}
-			#incident + restored
-			elseif ($record.Classification -eq 'Incident' -and $record.Status -eq "Service Restored") {
-				$mail_Body2 += '<table id="section"><tr><th width="5%"><img src="image/incident.png" alt="Incident"><img src="image/healthy.png" alt="Restored"></th><th width="95%">' + $record.WorkloadDisplayName +' | ' + $record.ID + ' | ' + $record.Title + '</th></tr></table>'
-			}
-			#incident + ongoing
-			elseif ($record.Classification -eq 'Incident' -and $record.Status -ne "Service Restored") {
-				$mail_Body2 += '<table id="section"><tr><th width="5%"><img src="image/incident.png" alt="Incident"></th><th width="95%">' + $record.WorkloadDisplayName +' | ' + $record.ID + ' | ' + $record.Title + '</th></tr></table>'
-			}
-			$mail_Body2 += "<hr>"
-						
+			$mail_Body1 = "<html><head><title>$($mailSubject)</title>"
+			$mail_Body1 = $mail_Body1 -join "`n" #convert to multiline string
+			$mail_Body2 += "</head><body>"
+			$mail_Body2 += "<hr>"			
+			$mail_Body2 += '<table id="section"><tr><th width="95%">' + $record.ID + ' | ' + $record.WorkloadDisplayName +' | ' + $record.Title + '</th></tr></table>'
+			$mail_Body2 += "<hr>"				
 			$mail_Body2 += '<table id="data">'
-			$mail_Body2 += '<tr><th>Status</th><th>User Impact</th><th>Last Updated</th><th>Start</th><th>End</th><th>Lastest Message</th></tr>'
-			if ($record.Status -eq 'Service Restored')
-			{
-				$mail_Body2 += '<tr><td width="10%" class="good">' + $record.Status + '</td>'
+
+			if ($record.Status -eq 'Service Restored'){
+				$mail_Body2 += '<tr><th>Status</th><td class="good">'+$record.Status+'</td></tr>'
 			}
 			else {
-				$mail_Body2 += '<tr><td width="10%" class="bad">' + $record.Status + '</td>'
+				$mail_Body2 += '<tr><th>Status</th><td class="bad">'+$record.Status+'</td></tr>'
 			}
-			$mail_Body2 += '<td width="20%">' + $record.ImpactDescription + '</td>'
-			$mail_Body2 += '<td width="10%">' + ('{0:dd-MMM-yyyy H:mm}' -f $record.LastUpdatedTime) + '</td>'
-			$mail_Body2 += '<td width="10%">' + ('{0:dd-MMM-yyyy H:mm}' -f $record.StartTime) + '</td>'
-			$mail_Body2 += '<td width="10%">' + ('{0:dd-MMM-yyyy H:mm}' -f $record.EndTime) + '</td>'
-			$mail_Body2 += '<td width="30%">' + ($record.Message).Replace("`n","<br />") + '</td></tr>'
+			$mail_Body2 += '<tr><th>Organization</th><td>'+$config.options.organizationName+'</td></tr>'
+			$mail_Body2 += '<tr><th>Classification</th><td>'+$record.Classification+'</td></tr>'
+			$mail_Body2 += '<tr><th>Event Type</th><td>'+$record.EventType+'</td></tr>'
+			$mail_Body2 += '<tr><th>User Impact</th><td>'+ $record.ImpactDescription+'</td></tr>'
+			$mail_Body2 += '<tr><th>Last Updated</th><td>'+ $record.LastUpdatedTime +'</td></tr>'
+			$mail_Body2 += '<tr><th>Start Time</th><td>'+ $record.StartTime +'</td></tr>'
+			$mail_Body2 += '<tr><th>End Time</th><td>'+ $record.EndTime+'</td></tr>'
+			$mail_Body2 += '<tr><th>Latest Message</th><td>'+($record.Message).Replace("`n","<br />")+'</td></tr>'
 			$mail_Body2 += '</table>'
-		}
-		$mail_Body2 += '<p><table id="section">'
-		$mail_Body2 += '<tr><th><center>----END of REPORT----</center></th></tr></table></p>'
-		$mail_Body2 += '<p><font size="2" face="Tahoma"><br />'
-		$mail_Body2 += '<br />'
-		$mail_Body2 += '<p><a href="https://github.com/junecastillote/Get-O365HealthReport">Get-O365HealthReport v.'+ $scriptVersion +'</a></p>'
-		$mail_body2 += '</body>'
-		$mail_body2 += '</html>'
-		$mail_Body2 = $mail_Body2 -join "`n"
-		#combine body texts
-		$mail_Body = $mail_Body1 + $css_string + $mail_Body2
-		$mail_body | Out-File "$($script_root)\output\report.html"
-		}
-	
-#send email if new or updated events are found
-if ($updatedRecord.Count -gt 0 -and $sendEmail -eq $true) {
 
-Write-Host "Sending report"
+			$mail_Body2 += '<p><table id="section">'
+			$mail_Body2 += '<tr><th><center>----END of REPORT----</center></th></tr></table></p>'
+			$mail_Body2 += '<p><font size="2" face="Tahoma"><br />'
+			$mail_Body2 += '<br />'
+			$mail_Body2 += '<p><a href="https://github.com/junecastillote/Get-O365HealthReport">Get-O365HealthReport v.'+ $scriptVersion +'</a></p>'
+			$mail_body2 += '</body>'
+			$mail_body2 += '</html>'
+			$mail_Body2 = $mail_Body2 -join "`n" #convert to multiline string
+			#combine body texts
+			$mail_Body = $mail_Body1 + $css_string + $mail_Body2
+			$mail_body | Out-File "$($script_root)\output\$($record.ID).html"
+
+#send email if new or updated events are found
+if ($sendEmail -eq $true) {
+
+Write-Host "Sending Alert for $($record.id)"
 $mail_body = $mail_Body.Replace("image/advisory.png","cid:advisory")
 $mail_body = $mail_Body.Replace("image/incident.png","cid:incident")
 $mail_body = $mail_Body.Replace("image/healthy.png","cid:healthy")
@@ -302,7 +281,6 @@ $headerParams = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
  
 $ToAddressJSON = $toAddress | ForEach-Object{'{"EmailAddress": {"Address": "'+$_+'"}},'}
 $ToAddressJSON = ([string]$ToAddressJSON).Substring(0, ([string]$ToAddressJSON).Length - 1)
-#$ToAddressJSON
 
 $mailSubject = '"' + $mailSubject + '"'
 #$newBody = '"body" : {	"contentType": "HTML",	"content": "'+$mail_body+'"	},'
@@ -349,7 +327,7 @@ $mailbody =
 }
 "@
 Invoke-RestMethod -Method Post -Uri $uri -Body $mailbody -Headers $headerParams -ContentType application/json
-Write-Host "Report Sent!"
+#Write-Host "Report Sent!"
 #MS Graph API Ends Here
 }
 catch {
@@ -357,12 +335,18 @@ catch {
 	$_.Exception | Format-List
 }
 }
-}
-else{
+}	
+			
+		}
+		
+		}
+		
+		else {
 	if ( $config.options.testMode -eq $false){
 		Write-Host "Old Records File is not found. This is considered as first run. No report is generated or sent."
 	}
 }
+
 
 Rename-Item $newCSV $oldCSV
 Stop-Transcript
