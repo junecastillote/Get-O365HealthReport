@@ -1,8 +1,18 @@
 <p>
 This script demonstrates how to retrieve the Office 365 Service Health Data using the <strong><u>Office 365 Management API</u></strong>, and send the email report using <strong><u>Microsoft Graph API</u></strong>.</p>
-<h3>
+<p>
+<strong><u>The logic flow is simple:</u></strong></p>
+<ol>
+<li>Retrieve Office 365 Service Health Record (this is the only action done during the first run, saved to new.csv)</li>
+<li>Read Old Records from file (old.csv)</li>
+<li>Compare retrieved records with old records (new.csv VS old.csv)</li>
+<li>Report if there are new or updated records (updated.csv)</li>
+</ol>
+<p>
+You may want to have this running as a scheduled task at an interval you prefer.</p>
+<p>
 
-</h3>
+</p>
 <h3>
 What is covered by this post?</h3>
 <ul>
@@ -36,7 +46,14 @@ Requirements</h3>
 <h3>
 Script Download</h3>
 <p>
-<a title="https://github.com/junecastillote/Get-O365HealthReport/archive/master.zip" href="https://github.com/junecastillote/Get-O365HealthReport/archive/master.zip">https://github.com/junecastillote/Get-O365HealthReport/archive/master.zip</a></p>
+v1.1 (latest) - <a title="https://github.com/junecastillote/Get-O365HealthReport/archive/v1.1.zip" href="https://github.com/junecastillote/Get-O365HealthReport/archive/v1.1.zip">https://github.com/junecastillote/Get-O365HealthReport/archive/v1.1.zip</a></p>
+<ul>
+<li>Added “organizationName” field in config.xml</li>
+<li>Removed “mailSubject” field from config.xml</li>
+<li>Send one email per event (alerts are no longer consolidated in one single email)</li>
+</ul>
+<p>
+<strike>v1.0 - </strike><strike>https://github.com/junecastillote/Get-O365HealthReport/archive/master.zip</strike></p>
 <p>
 
 </p>
@@ -137,7 +154,7 @@ Script Configuration</h3>
 <p>
 Open the config.xml file and edit the values as necessary like the example below:</p>
 <p>
-<a href="https://lh3.googleusercontent.com/-c0lwSC3sQjM/W-KpP_7QLyI/AAAAAAAADnQ/LBfkhZKiyJQNs7p2ZhW9jWs-SAJA6V6WQCHMYCw/s1600-h/mRemoteNG_2018-11-07_16-06-47%255B3%255D" target="_blank"><img width="790" height="212" title="" style="display: inline; background-image: none;" alt="" src="https://lh3.googleusercontent.com/-05-1L1WH3yo/W-KpQzxSGGI/AAAAAAAADnU/QYo9BoPssXUQdqnra6UG4CIdNnFcv0fGgCHMYCw/mRemoteNG_2018-11-07_16-06-47_thumb%255B1%255D?imgmax=800" border="0"></a></p>
+<a href="https://lh3.googleusercontent.com/--A4Ef_1h-hM/W_4f9PN75XI/AAAAAAAAEKU/xHbZvmNfiF0gpaCQfUPYPlpxqz-1zyBfQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-45-24%255B7%255D" target="_blank"><img width="774" height="208" title="" style="display: inline; background-image: none;" alt="" src="https://lh3.googleusercontent.com/-jaSnCfiWJ-M/W_4f_TF4hSI/AAAAAAAAEKY/3Kj_fPve6SE8hqCK9saWmhOOtazz3-qAwCHMYCw/mRemoteNG_2018-11-28_12-45-24_thumb%255B4%255D?imgmax=800" border="0"></a></p>
 <p>
 <strong>sendEmail</strong> – set this to TRUE or FALSE depending on whether you want the report sent thru email.</p>
 <p>
@@ -153,7 +170,7 @@ Open the config.xml file and edit the values as necessary like the example below
 <p>
 <strong>fromAddress</strong> – the primary smtp address of the Shared Mailbox or User Mailbox you want to use for sending the email report.</p>
 <p>
-<strong>mailSubject</strong> – you preferred email subject and title of the html report</p>
+<strong>organizationName </strong>– the name of your organization to reflect in the alert.</p>
 <p>
 
 </p>
@@ -164,18 +181,18 @@ Running the Script</h3>
 <p>
 In this example, the script is in run Test Mode.</p>
 <p>
-<a href="https://lh3.googleusercontent.com/-GPWkIajQZDw/W-KpSLQ2FCI/AAAAAAAADnY/w476Wjg81241nEnS_8pS6-7NEs-jMG2vgCHMYCw/s1600-h/mRemoteNG_2018-11-07_16-24-26%255B4%255D" target="_blank"><img width="542" height="201" title="" style="display: inline; background-image: none;" alt="" src="https://lh3.googleusercontent.com/-a_VpPCmCW2k/W-KpTYb-QII/AAAAAAAADnc/wKvTtweTYUkZ0ia--kDvN5x0Sv1yP6TPwCHMYCw/mRemoteNG_2018-11-07_16-24-26_thumb%255B2%255D?imgmax=800" border="0"></a></p>
+<a href="https://lh3.googleusercontent.com/-AJFlfyqFSM0/W_4gAyJO5DI/AAAAAAAAEKc/owBaw6V2eNM6hS-S-Wynee-CoRdu0mvmQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-49-03%255B4%255D" target="_blank"><img width="531" height="204" title="" style="display: inline; background-image: none;" alt="" src="https://lh3.googleusercontent.com/-NGL_t0MdABM/W_4gCrhgy4I/AAAAAAAAEKg/syB7f0qOGeofVu55aw_m_LZElVAOqd_4gCHMYCw/mRemoteNG_2018-11-28_12-49-03_thumb%255B2%255D?imgmax=800" border="0"></a></p>
 <h3>
 Sample Output</h3>
 <h4>
 Email</h4>
 <p>
-<a href="https://lh3.googleusercontent.com/-lhlI0oR1hX0/W-KpUjIqNsI/AAAAAAAADnk/NcDiTQYMH8kenSIAtp2GeBuy9GjFXq8WACHMYCw/s1600-h/mRemoteNG_2018-11-07_16-40-40%255B8%255D" target="_blank"><img width="970" height="617" title="" style="display: inline; background-image: none;" alt="" src="https://lh3.googleusercontent.com/-6-Tgek7_p7I/W-KpVlIYTEI/AAAAAAAADno/HeNxxsKkHBYVSZE1KjoV0vLghAY8Gxe4QCHMYCw/mRemoteNG_2018-11-07_16-40-40_thumb%255B6%255D?imgmax=800" border="0"></a></p>
+<a href="https://lh3.googleusercontent.com/-ZazwhEsa4eY/W_4g5wLOmrI/AAAAAAAAELY/FXAKahTrNrwmI1o9rIF-97WRLdb1hm0owCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-50-41%255B6%255D" target="_blank"><img width="701" height="821" title="" style="display: inline; background-image: none;" alt="" src="https://lh3.googleusercontent.com/-OiUiWz14wVU/W_4g8Er-_PI/AAAAAAAAELc/XqK-QQo7GBYF7ma4BeDW3redGp3Hoc2agCHMYCw/mRemoteNG_2018-11-28_12-50-41_thumb%255B4%255D?imgmax=800" border="0"></a></p>
 <h4>
 HTML</h4>
 <p>
-<a href="https://lh3.googleusercontent.com/-QhTrSYxScTw/W-KpW7BzmvI/AAAAAAAADns/gXvS3ftrB9cT7ZTC9TNgOU4xlnI6Z9EwACHMYCw/s1600-h/mRemoteNG_2018-11-07_16-42-12%255B3%255D"><img width="422" height="180" title="mRemoteNG_2018-11-07_16-42-12" style="display: inline; background-image: none;" alt="mRemoteNG_2018-11-07_16-42-12" src="https://lh3.googleusercontent.com/-5lnD5qEUEBE/W-KpYGawzkI/AAAAAAAADnw/jVRlh7oknMkOoOAo4TcBm5_iZXhyVJMMACHMYCw/mRemoteNG_2018-11-07_16-42-12_thumb%255B1%255D?imgmax=800" border="0"></a></p>
+<a href="https://lh3.googleusercontent.com/-JW3OtGimoS4/W_4gIGlsQAI/AAAAAAAAEKs/2vawZp_f0lo6Q_pg8EW3DgMnKKU_ovMIQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-52-22%255B3%255D"><img width="401" height="177" title="mRemoteNG_2018-11-28_12-52-22" style="display: inline; background-image: none;" alt="mRemoteNG_2018-11-28_12-52-22" src="https://lh3.googleusercontent.com/-rQ9dW8SqfGQ/W_4gJnProVI/AAAAAAAAEKw/PUiHvxUWl7YVuG-ORnddO0qt7Y3mFOPQwCHMYCw/mRemoteNG_2018-11-28_12-52-22_thumb%255B1%255D?imgmax=800" border="0"></a></p>
 <p>
-<a href="https://lh3.googleusercontent.com/-iJB_hO5SCwE/W-KpZTfKtrI/AAAAAAAADn0/jigBS5MSImUBU6HDr5PN91i_Jm5LOa3-gCHMYCw/s1600-h/mRemoteNG_2018-11-07_16-44-53%255B2%255D"><img width="670" height="582" title="mRemoteNG_2018-11-07_16-44-53" style="display: inline; background-image: none;" alt="mRemoteNG_2018-11-07_16-44-53" src="https://lh3.googleusercontent.com/-sH_lBTOGtdg/W-KpakkAtgI/AAAAAAAADn8/gsb0Qfo9B6EfQhhSu8TXHpO-rrKKBHNxwCHMYCw/mRemoteNG_2018-11-07_16-44-53_thumb?imgmax=800" border="0"></a></p>
+<a href="https://lh3.googleusercontent.com/-U2cKcnHEtzU/W_4g-31jCxI/AAAAAAAAELg/z708htU7cj00L5k7H_5U2umpxfaZ9WcbQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-53-17%255B4%255D" target="_blank"><img width="1038" height="632" title="" style="display: inline; background-image: none;" alt="" src="https://lh3.googleusercontent.com/-d2l3SqgZAME/W_4hBsi4HSI/AAAAAAAAELk/1KnUvxkvi7U-B6NrkUeQgq6hnsQ3A4RkACHMYCw/mRemoteNG_2018-11-28_12-53-17_thumb%255B2%255D?imgmax=800" border="0"></a></p>
 <p>
-This script is functional, but I’m sure there can be many improvements that can be done. So please feel free to comment or modify, just please don’t forget to credit the original source.</p>
+This script is functional, but I’m sure there can be many improvements. Or perhaps someone else accomplish this differently. So please feel free to comment or modify and improve, just please don’t forget to credit the original source.</p>
