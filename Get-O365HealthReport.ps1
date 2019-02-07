@@ -5,7 +5,7 @@
 	 Created by:   	June Castillote
 					june.castillote@gmail.com
 	 Filename:     	Get-o365HealthReport.ps1
-	 Version:		1.1 (28-November-2018)
+	 Version:		1.2 (7-February-2019)
 	===========================================================================
 
 	.LINK
@@ -28,7 +28,7 @@
 #>
 
 #Requires -Version 4.0
-$scriptVersion = "1.1"
+$scriptVersion = "1.2"
 
 #get root path of the script
 $script_root = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
@@ -164,7 +164,9 @@ if (Test-Path $oldCSV){
 		#if ID exists, compare ID
 		if ($oldRecord) {			
 			#check if ID is updated based on LastUpdatedTime
-			if ($oldRecord.LastUpdatedTime -ne $newRecord.LastUpdatedTime) {
+			#v1.2 update 
+			# - Add Status changes to the comparison
+			if ($oldRecord.LastUpdatedTime -ne $newRecord.LastUpdatedTime -OR $oldRecord.Status -ne $newRecord.Status) {
 				$temp.EventType = "Update"
 				$temp.ID = $newRecord.ID
 				$temp.Title = $newRecord.Title
@@ -188,8 +190,7 @@ if (Test-Path $oldCSV){
 			}
 		}
 		#if ID does not exist, new record
-		else {
-			
+		else {			
 				$temp.EventType = "New"
 				$temp.ID = $newRecord.ID
 				$temp.Title = $newRecord.Title
