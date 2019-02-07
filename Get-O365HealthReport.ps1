@@ -224,7 +224,7 @@ if (Test-Path $oldCSV){
 			$mail_Body1 = @()
 			$mail_Body2 = @()
 			#Write-Host "Writing Report"
-			$mailSubject = $record.ID + ' | ' + $record.WorkloadDisplayName +' | ' + $record.Title
+			$mailSubject = '[' + $record.Status + ']' + $record.ID + ' | ' + $record.WorkloadDisplayName +' | ' + $record.Title
 			if ( $config.options.testMode -eq $true){
 				$mailSubject = "[TEST MODE] | " + $mailSubject
 			}
