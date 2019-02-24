@@ -1,4 +1,7 @@
 log.txt
+old.csv
+updated.csv
+new.csv
 *.html
 *.class
 
