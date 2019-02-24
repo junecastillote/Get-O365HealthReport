@@ -5,7 +5,7 @@
 	 Created by:   	June Castillote
 					june.castillote@gmail.com
 	 Filename:     	Get-o365HealthReport.ps1
-	 Version:		1.2 (7-February-2019)
+	 Version:		1.3 (7-February-2019)
 	===========================================================================
 
 	.LINK
@@ -28,7 +28,7 @@
 #>
 
 #Requires -Version 4.0
-$scriptVersion = "1.2"
+$scriptVersion = "1.3"
 
 #get root path of the script
 $script_root = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
@@ -48,6 +48,14 @@ $statusStringArray = @(
 
 #import config.xml
 [xml]$config = Get-Content "$($script_root)\resource\config.xml"
+
+#import exclusions
+if (!(Test-Path "$($script_root)\resource\exclusions.txt")) {
+	New-Item -Type File -Path "$($script_root)\resource\exclusions.txt"
+}
+else {
+	$exclusions = Get-Content "$($script_root)\resource\exclusions.txt"
+}
 
 #csv files
 $testCSv = "$($script_root)\output\test_data.csv"
