@@ -5,7 +5,7 @@
 	 Created by:   	June Castillote
 					june.castillote@gmail.com
 	 Filename:     	Get-o365HealthReport.ps1
-	 Version:		1.3 (7-February-2019)
+	 Version:		1.3 (25-February-2019)
 	===========================================================================
 
 	.LINK
@@ -20,10 +20,39 @@
 		For more details and usage instruction, please visit the link:
 		https://www.lazyexchangeadmin.com/2018/10/shd365.html
 		https://github.com/junecastillote/Get-O365HealthReport		
-		
-		
+				
 	.EXAMPLE
 		.\Get-o365HealthReport.ps1
+#>
+
+<# CHANGE LOGS:
+
+v1.0
+- Initial Build
+
+v1.1
+- Added “organizationName” field in config.xml
+- Removed “mailSubject” field from config.xml
+- Send one email per event (alerts are no longer consolidated in one single email)
+
+v1.2
+- Modified to also check the changes in "Status" to trigger an update alert. (eg. Service Degradation to Service Restored). 
+This is because I observed that some events' Last Updated Time does not change but the Status change which is not getting
+captured by the previous script.
+
+v1.3
+- exclusions.csv file inside the \resource folder can not be used to exclude workloads from the report.
+- the csv file lists current workloads available (eg. exchange online, Sharepoint Onine..)
+- to exclude the specific workloads from the report, just change the value under the Exclude column.
+
+Example:
+
+		WorkLoad,Exclude <---- this are the column names, do not change
+		Exchange Online,0
+		Microsoft Intune,1
+		...
+
+- The above example excludes Microsoft Intune from the report, and will only report on Exchange Online events.
 
 #>
 
@@ -46,15 +75,41 @@ $statusStringArray = @(
 "Service restored"
 )
 
+$workLoadStringArrays = @(
+	"WorkLoad,Exclude"
+	"Azure Information Protection,0",
+	"Dynamics 365,0",
+	"Dynamics 365 for Operations,0",
+	"Exchange Online,0",
+	"Identity Service,0",
+	"Microsoft Intune,0",
+	"Microsoft StaffHub,0",
+	"Microsoft Teams,0",
+	"Mobile Device Management for Office 365,0",
+	"Office 365 Portal,0",
+	"Office Online,0",
+	"Office Subscription,0",
+	"OneDrive for Business,0",
+	"Planner,0",
+	"Power BI,0",
+	"SharePoint Online,0",
+	"Skype for Business,0",
+	"Social Engagement,0",
+	"Sway,0",
+	"Yammer Enterprise,0"	
+)
+
 #import config.xml
 [xml]$config = Get-Content "$($script_root)\resource\config.xml"
 
 #import exclusions
-if (!(Test-Path "$($script_root)\resource\exclusions.txt")) {
-	New-Item -Type File -Path "$($script_root)\resource\exclusions.txt"
+if (Test-Path "$($script_root)\resource\exclusions.csv") {
+	$exclusions = Import-Csv "$($script_root)\resource\exclusions.csv" | Where-Object {$_.Exclude -eq 1}
 }
 else {
-	$exclusions = Get-Content "$($script_root)\resource\exclusions.txt"
+	#if the exclusions.csv file does not exist, create the file with default values
+	$workLoadStringArrays | ConvertFrom-Csv | Export-Csv "$($script_root)\resource\exclusions.csv" -NoTypeInformation
+	$exclusions = Import-Csv "$($script_root)\resource\exclusions.csv" | Where-Object {$_.Exclude -eq 1}
 }
 
 #csv files
@@ -92,7 +147,6 @@ $tenantdomain = $config.options.tenantDomain
 
 # Office 365 Management API starts here
 try {
-
 	$body = @{grant_type="client_credentials";resource="https://manage.office.com";client_id=$ClientID;client_secret=$ClientSecret}
 	$oauth = Invoke-RestMethod -Method Post -Uri "https://login.microsoftonline.com/$($tenantdomain)/oauth2/token?api-version=1.0" -Body $body
 	$headerParams = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
@@ -114,11 +168,11 @@ catch {
 }
 # Office 365 Management API ends here
 
-
 #compile new results
 $newResult = @()
 foreach ($message in $incidents){
 
+if ($exclusions.Workload -notcontains $message.WorkloadDisplayName) {
 	if ($statusStringArray -contains $message.Status) {
 	#get the index of the latest message in the event.
 	[int]$msgCount = ($message.Messages.Count)-1
@@ -145,6 +199,7 @@ foreach ($message in $incidents){
 	$temp.ImpactDescription = $message.ImpactDescription
 	$newResult += $temp
 	}
+}
 }
 #process the retrieved records
 $newResult | Sort-Object LastUpdatedTime -Descending | export-Csv -notypeInformation $newCSV
@@ -232,7 +287,7 @@ if (Test-Path $oldCSV){
 			$mail_Body1 = @()
 			$mail_Body2 = @()
 			#Write-Host "Writing Report"
-			$mailSubject = '[' + $record.Status + ']' + $record.ID + ' | ' + $record.WorkloadDisplayName +' | ' + $record.Title
+			$mailSubject = '[' + $record.Status + '] ' + $record.ID + ' | ' + $record.WorkloadDisplayName +' | ' + $record.Title
 			if ( $config.options.testMode -eq $true){
 				$mailSubject = "[TEST MODE] | " + $mailSubject
 			}
