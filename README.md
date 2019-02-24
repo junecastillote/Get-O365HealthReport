@@ -1,8 +1,9 @@
 This script demonstrates how to retrieve the Office 365 Service Health Data using the <strong><u>Office 365 Management API</u></strong>, and send the email report using <strong><u>Microsoft Graph API</u></strong>.
-<strong><u>The logic flow is simple:</u></strong>
+<strong><u>
+</u></strong> <strong><u>The logic flow is simple:</u></strong>
 <ol>
 <li>Retrieve Office 365 Service Health Record (this is the only action done during the first run, saved to new.csv)</li>
-<li>Read Old Records from file (old.csv)</li>
+<li>Read Old Records from the file (old.csv)</li>
 <li>Compare retrieved records with old records (new.csv VS old.csv)</li>
 <li>Report if there are new or updated records (updated.csv)</li>
 </ol>
@@ -32,20 +33,27 @@ Requirements</h3>
 </ul>
 
 <h3>
-Script Download</h3>
-v1.2 (latest) -&nbsp;<a href="https://github.com/junecastillote/Get-O365HealthReport/archive/v1.2.zip">https://github.com/junecastillote/Get-O365HealthReport/archive/v1.2.zip</a>
+Script Download /&nbsp; Change Logs</h3>
+v1.3 (latest) -&nbsp;<a href="https://github.com/junecastillote/Get-O365HealthReport/tree/v1.3">https://github.com/junecastillote/Get-O365HealthReport/tree/v1.3</a>
+
+<ul>
+<li>added "exclusion" feature. (requested from&nbsp;this <a href="https://github.com/junecastillote/Get-O365HealthReport/issues/1">issue</a>)</li>
+<li>the&nbsp;<b>exclusions.csv</b> file inside the <b>\resource</b> folder can now be used to exclude workloads from the report.</li>
+</ul>
+
+v1.2 -&nbsp;<a href="https://github.com/junecastillote/Get-O365HealthReport/tree/v1.2">https://github.com/junecastillote/Get-O365HealthReport/tree/v1.2</a>
 
 <ul>
 <li>Modified to also check the changes in "Status" to trigger an update alert. (eg. Service Degradation to Service Restored). This is because I observed that some events' Last Updated Time does not change but the Status change which is not getting captured by the previous script.</li>
 </ul>
 
-<strike>v1.1 - https://github.com/junecastillote/Get-O365HealthReport/archive/v1.1.zip</strike>
+v1.1 - <a href="https://github.com/junecastillote/Get-O365HealthReport/tree/v1.1">https://github.com/junecastillote/Get-O365HealthReport/tree/v1.1</a>
 <ul>
 <li>Added “organizationName” field in config.xml</li>
 <li>Removed “mailSubject” field from config.xml</li>
 <li>Send one email per event (alerts are no longer consolidated in one single email)</li>
 </ul>
-<strike>v1.0 - </strike><strike>https://github.com/junecastillote/Get-O365HealthReport/archive/master.zip</strike>
+v1.0 - <a href="https://github.com/junecastillote/Get-O365HealthReport">https://github.com/junecastillote/Get-O365HealthReport</a>
 
 <h3>
 App Registration</h3>
@@ -115,7 +123,8 @@ Note: Your account must be a Global Admin
 Script Configuration</h3>
 Open the config.xml file and edit the values as necessary like the example below:
 <a href="https://lh3.googleusercontent.com/--A4Ef_1h-hM/W_4f9PN75XI/AAAAAAAAEKU/xHbZvmNfiF0gpaCQfUPYPlpxqz-1zyBfQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-45-24%255B7%255D" target="_blank"><img alt="" border="0" height="208" src="https://lh3.googleusercontent.com/-jaSnCfiWJ-M/W_4f_TF4hSI/AAAAAAAAEKY/3Kj_fPve6SE8hqCK9saWmhOOtazz3-qAwCHMYCw/mRemoteNG_2018-11-28_12-45-24_thumb%255B4%255D?imgmax=800" style="background-image: none; display: inline;" title="" width="774" /></a>
-<strong>sendEmail</strong> – set this to TRUE or FALSE depending on whether you want the report sent thru email.
+<strong>
+</strong> <strong>sendEmail</strong> – set this to TRUE or FALSE depending on whether you want the report sent thru email.
 <strong>testMode</strong> – set this to TRUE or FALSE depending on whether you want to run in test mode or not. Test Mode will treat ALL items retrieved from the service health dashboard as NEW or UPDATE. When you’re ready to put this script in production, set this to FALSE
 <strong>clientID</strong> – this is the Application ID you copied from the App Registration in Azure AD
 <strong>clientSecret</strong> – this is the Key you copied from the App Registration in Azure AD
@@ -125,10 +134,26 @@ Open the config.xml file and edit the values as necessary like the example below
 <strong>organizationName </strong>– the name of your organization to reflect in the alert.
 
 <h3>
+How to Exclude Workloads from the Report</h3>
+
+<ol>
+<li>Open the <b><i>\resources\exclusions.csv</i></b> file</li>
+<li>Change the Excluded value of the workload you want to exclude to 1 (0=include, 1=include)</li>
+</ol>
+<div class="separator" style="clear: both; text-align: center;">
+<a href="https://2.bp.blogspot.com/-copZIVSmKas/XHLb1215aAI/AAAAAAAAFQI/Xfpy_gNaK1o_zMl4CH2a-o5_L1Wuc5w5wCLcBGAs/s1600/exclusions.csv.png" style="margin-left: 1em; margin-right: 1em;"><img border="0" data-original-height="428" data-original-width="474" src="https://2.bp.blogspot.com/-copZIVSmKas/XHLb1215aAI/AAAAAAAAFQI/Xfpy_gNaK1o_zMl4CH2a-o5_L1Wuc5w5wCLcBGAs/s1600/exclusions.csv.png" /></a></div>
+<div>
+
+</div>
+
+
+<h3>
 Running the Script</h3>
 <strong>IMPORTANT</strong>: In the first run, whether in Test Mode or not, will only generate the data that will be needed for future run comparisons.
 In this example, the script is in run Test Mode.
-<a href="https://lh3.googleusercontent.com/-AJFlfyqFSM0/W_4gAyJO5DI/AAAAAAAAEKc/owBaw6V2eNM6hS-S-Wynee-CoRdu0mvmQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-49-03%255B4%255D" target="_blank"><img alt="" border="0" height="204" src="https://lh3.googleusercontent.com/-NGL_t0MdABM/W_4gCrhgy4I/AAAAAAAAEKg/syB7f0qOGeofVu55aw_m_LZElVAOqd_4gCHMYCw/mRemoteNG_2018-11-28_12-49-03_thumb%255B2%255D?imgmax=800" style="background-image: none; display: inline;" title="" width="531" /></a>
+<div class="separator" style="clear: both; text-align: center;">
+<a href="https://lh3.googleusercontent.com/-AJFlfyqFSM0/W_4gAyJO5DI/AAAAAAAAEKc/owBaw6V2eNM6hS-S-Wynee-CoRdu0mvmQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-49-03%255B4%255D" style="margin-left: 1em; margin-right: 1em;" target="_blank"><img alt="" border="0" height="204" src="https://lh3.googleusercontent.com/-NGL_t0MdABM/W_4gCrhgy4I/AAAAAAAAEKg/syB7f0qOGeofVu55aw_m_LZElVAOqd_4gCHMYCw/mRemoteNG_2018-11-28_12-49-03_thumb%255B2%255D?imgmax=800" style="background-image: none; display: inline;" title="" width="531" /></a></div>
+
 <h3>
 Sample Output</h3>
 <h4>
@@ -138,4 +163,4 @@ Email</h4>
 HTML</h4>
 <a href="https://lh3.googleusercontent.com/-JW3OtGimoS4/W_4gIGlsQAI/AAAAAAAAEKs/2vawZp_f0lo6Q_pg8EW3DgMnKKU_ovMIQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-52-22%255B3%255D"><img alt="mRemoteNG_2018-11-28_12-52-22" border="0" height="177" src="https://lh3.googleusercontent.com/-rQ9dW8SqfGQ/W_4gJnProVI/AAAAAAAAEKw/PUiHvxUWl7YVuG-ORnddO0qt7Y3mFOPQwCHMYCw/mRemoteNG_2018-11-28_12-52-22_thumb%255B1%255D?imgmax=800" style="background-image: none; display: inline;" title="mRemoteNG_2018-11-28_12-52-22" width="401" /></a>
 <a href="https://lh3.googleusercontent.com/-U2cKcnHEtzU/W_4g-31jCxI/AAAAAAAAELg/z708htU7cj00L5k7H_5U2umpxfaZ9WcbQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-53-17%255B4%255D" target="_blank"><img alt="" border="0" height="632" src="https://lh3.googleusercontent.com/-d2l3SqgZAME/W_4hBsi4HSI/AAAAAAAAELk/1KnUvxkvi7U-B6NrkUeQgq6hnsQ3A4RkACHMYCw/mRemoteNG_2018-11-28_12-53-17_thumb%255B2%255D?imgmax=800" style="background-image: none; display: inline;" title="" width="1038" /></a>
-This script is functional, but I’m sure there can be many improvements. Or perhaps someone else accomplish this differently. So please feel free to comment or modify and improve, just please don’t forget to credit the original source.
+This script is functional, but I’m sure there can be many improvements. Or perhaps someone else has&nbsp;accomplished this differently. So please feel free to comment or modify and improve, just please don’t forget to credit the original source.
