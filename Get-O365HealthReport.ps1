@@ -41,8 +41,9 @@ This is because I observed that some events' Last Updated Time does not change b
 captured by the previous script.
 
 v1.3
-- exclusions.csv file inside the \resource folder can not be used to exclude workloads from the report.
-- the csv file lists current workloads available (eg. exchange online, Sharepoint Onine..)
+- added "exclusion" feature.
+- exclusions.csv file inside the \resource folder can now be used to exclude workloads from the report.
+- the csv file lists current workloads available (eg. exchange online, Sharepoint Online..)
 - to exclude the specific workloads from the report, just change the value under the Exclude column.
 
 Example:
