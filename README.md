@@ -8,7 +8,6 @@ This script demonstrates how to retrieve the Office 365 Service Health Data usin
 <li>Report if there are new or updated records (updated.csv)</li>
 </ol>
 You may want to have this running as a scheduled task at an interval you prefer.
-
 <h3>
 What is covered by this post?</h3>
 <ul>
@@ -16,7 +15,6 @@ What is covered by this post?</h3>
 <li>Configuring the Script</li>
 <li>Running the Script and Generating Outputs / Reports</li>
 </ul>
-
 <h3>
 What is NOT covered by this post?</h3>
 This post does not cover the “<em>How-To”</em> of the said APIs, because they can already be found by following these links:
@@ -24,36 +22,40 @@ This post does not cover the “<em>How-To”</em> of the said APIs, because the
 <li><strong>Office 365 Management APIs</strong> - <a href="https://docs.microsoft.com/en-us/office/office-365-management-api/" title="https://docs.microsoft.com/en-us/office/office-365-management-api/">https://docs.microsoft.com/en-us/office/office-365-management-api/</a></li>
 <li><strong>Microsoft Graph API</strong> - <a href="https://developer.microsoft.com/en-us/graph/docs/concepts/overview" title="https://developer.microsoft.com/en-us/graph/docs/concepts/overview">https://developer.microsoft.com/en-us/graph/docs/concepts/overview</a></li>
 </ul>
-
 <h3>
 Requirements</h3>
 <ul>
 <li>Application Registration in Azure AD (Application ID + Key + Permissions)</li>
-<li>Exchange Online Mailbox (User or Shared Mailbox, for sending reports)</li>
+<li>Exchange Online Mailbox (User or Shared Mailbox, for sending reports)Script Download /&nbsp; Change Logs</li>
+</ul>
+v1.4 (latest) -&nbsp;<a href="https://github.com/junecastillote/Get-O365HealthReport/tree/v1.4">https://github.com/junecastillote/Get-O365HealthReport/tree/v1.4</a>
+
+<ul>
+<li>code cleanup</li>
+<li>fixed JSON conversion for email report</li>
 </ul>
 
-<h3>
-Script Download /&nbsp; Change Logs</h3>
-v1.3 (latest) -&nbsp;<a href="https://github.com/junecastillote/Get-O365HealthReport/tree/v1.3">https://github.com/junecastillote/Get-O365HealthReport/tree/v1.3</a>
-
+v1.3
 <ul>
 <li>added "exclusion" feature. (requested from&nbsp;this <a href="https://github.com/junecastillote/Get-O365HealthReport/issues/1">issue</a>)</li>
 <li>the&nbsp;<b>exclusions.csv</b> file inside the <b>\resource</b> folder can now be used to exclude workloads from the report.</li>
 </ul>
-
-v1.2 -&nbsp;<a href="https://github.com/junecastillote/Get-O365HealthReport/tree/v1.2">https://github.com/junecastillote/Get-O365HealthReport/tree/v1.2</a>
-
+v1.2
 <ul>
 <li>Modified to also check the changes in "Status" to trigger an update alert. (eg. Service Degradation to Service Restored). This is because I observed that some events' Last Updated Time does not change but the Status change which is not getting captured by the previous script.</li>
 </ul>
-
-v1.1 - <a href="https://github.com/junecastillote/Get-O365HealthReport/tree/v1.1">https://github.com/junecastillote/Get-O365HealthReport/tree/v1.1</a>
+v1.1
 <ul>
 <li>Added “organizationName” field in config.xml</li>
 <li>Removed “mailSubject” field from config.xml</li>
 <li>Send one email per event (alerts are no longer consolidated in one single email)</li>
 </ul>
-v1.0 - <a href="https://github.com/junecastillote/Get-O365HealthReport">https://github.com/junecastillote/Get-O365HealthReport</a>
+v1.0
+
+<ul>
+<li>Initial build</li>
+</ul>
+
 
 <h3>
 App Registration</h3>
@@ -135,25 +137,19 @@ Open the config.xml file and edit the values as necessary like the example below
 
 <h3>
 How to Exclude Workloads from the Report</h3>
-
+<b>Note: This is applicable only from version 1.3.</b>
 <ol>
 <li>Open the <b><i>\resources\exclusions.csv</i></b> file</li>
 <li>Change the Excluded value of the workload you want to exclude to 1 (0=include, 1=include)</li>
 </ol>
 <div class="separator" style="clear: both; text-align: center;">
 <a href="https://2.bp.blogspot.com/-copZIVSmKas/XHLb1215aAI/AAAAAAAAFQI/Xfpy_gNaK1o_zMl4CH2a-o5_L1Wuc5w5wCLcBGAs/s1600/exclusions.csv.png" style="margin-left: 1em; margin-right: 1em;"><img border="0" data-original-height="428" data-original-width="474" src="https://2.bp.blogspot.com/-copZIVSmKas/XHLb1215aAI/AAAAAAAAFQI/Xfpy_gNaK1o_zMl4CH2a-o5_L1Wuc5w5wCLcBGAs/s1600/exclusions.csv.png" /></a></div>
-<div>
-
-</div>
-
-
 <h3>
 Running the Script</h3>
 <strong>IMPORTANT</strong>: In the first run, whether in Test Mode or not, will only generate the data that will be needed for future run comparisons.
 In this example, the script is in run Test Mode.
 <div class="separator" style="clear: both; text-align: center;">
 <a href="https://lh3.googleusercontent.com/-AJFlfyqFSM0/W_4gAyJO5DI/AAAAAAAAEKc/owBaw6V2eNM6hS-S-Wynee-CoRdu0mvmQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-49-03%255B4%255D" style="margin-left: 1em; margin-right: 1em;" target="_blank"><img alt="" border="0" height="204" src="https://lh3.googleusercontent.com/-NGL_t0MdABM/W_4gCrhgy4I/AAAAAAAAEKg/syB7f0qOGeofVu55aw_m_LZElVAOqd_4gCHMYCw/mRemoteNG_2018-11-28_12-49-03_thumb%255B2%255D?imgmax=800" style="background-image: none; display: inline;" title="" width="531" /></a></div>
-
 <h3>
 Sample Output</h3>
 <h4>
@@ -163,4 +159,5 @@ Email</h4>
 HTML</h4>
 <a href="https://lh3.googleusercontent.com/-JW3OtGimoS4/W_4gIGlsQAI/AAAAAAAAEKs/2vawZp_f0lo6Q_pg8EW3DgMnKKU_ovMIQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-52-22%255B3%255D"><img alt="mRemoteNG_2018-11-28_12-52-22" border="0" height="177" src="https://lh3.googleusercontent.com/-rQ9dW8SqfGQ/W_4gJnProVI/AAAAAAAAEKw/PUiHvxUWl7YVuG-ORnddO0qt7Y3mFOPQwCHMYCw/mRemoteNG_2018-11-28_12-52-22_thumb%255B1%255D?imgmax=800" style="background-image: none; display: inline;" title="mRemoteNG_2018-11-28_12-52-22" width="401" /></a>
 <a href="https://lh3.googleusercontent.com/-U2cKcnHEtzU/W_4g-31jCxI/AAAAAAAAELg/z708htU7cj00L5k7H_5U2umpxfaZ9WcbQCHMYCw/s1600-h/mRemoteNG_2018-11-28_12-53-17%255B4%255D" target="_blank"><img alt="" border="0" height="632" src="https://lh3.googleusercontent.com/-d2l3SqgZAME/W_4hBsi4HSI/AAAAAAAAELk/1KnUvxkvi7U-B6NrkUeQgq6hnsQ3A4RkACHMYCw/mRemoteNG_2018-11-28_12-53-17_thumb%255B2%255D?imgmax=800" style="background-image: none; display: inline;" title="" width="1038" /></a>
+
 This script is functional, but I’m sure there can be many improvements. Or perhaps someone else has&nbsp;accomplished this differently. So please feel free to comment or modify and improve, just please don’t forget to credit the original source.
