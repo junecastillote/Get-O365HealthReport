@@ -5,7 +5,7 @@
 	 Created by:   	June Castillote
 					june.castillote@gmail.com
 	 Filename:     	Get-o365HealthReport.ps1
-	 Version:		1.3 (25-February-2019)
+	 Version:		1.4 (1-April-2019)
 	===========================================================================
 
 	.LINK
@@ -27,18 +27,9 @@
 
 <# CHANGE LOGS:
 
-v1.0
-- Initial Build
-
-v1.1
-- Added “organizationName” field in config.xml
-- Removed “mailSubject” field from config.xml
-- Send one email per event (alerts are no longer consolidated in one single email)
-
-v1.2
-- Modified to also check the changes in "Status" to trigger an update alert. (eg. Service Degradation to Service Restored). 
-This is because I observed that some events' Last Updated Time does not change but the Status change which is not getting
-captured by the previous script.
+v1.4
+- code cleanup
+- fixed JSON conversion for email report
 
 v1.3
 - added "exclusion" feature.
@@ -55,10 +46,22 @@ Example:
 
 - The above example excludes Microsoft Intune from the report, and will only report on Exchange Online events.
 
+v1.2
+- Modified to also check the changes in "Status" to trigger an update alert. (eg. Service Degradation to Service Restored). 
+This is because I observed that some events' Last Updated Time does not change but the Status change which is not getting
+captured by the previous script.
+
+v1.1
+- Added “organizationName” field in config.xml
+- Removed “mailSubject” field from config.xml
+- Send one email per event (alerts are no longer consolidated in one single email)
+
+v1.0
+- Initial Build
 #>
 
 #Requires -Version 4.0
-$scriptVersion = "1.3"
+$scriptVersion = "1.4"
 
 #get root path of the script
 $script_root = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
@@ -135,11 +138,6 @@ if ( $config.options.testMode -eq $true){
 $sendEmail = $config.options.sendEmail
 [array]$toAddress = ($config.options.toAddress).Split(",")
 $fromAddress = $config.options.fromAddress
-
-#base64 images
-[string]$base64_healthy = '"'+[convert]::ToBase64String((Get-Content "$($script_root)\output\image\healthy.png" -Encoding byte))+'"'
-[string]$base64_incident = '"'+[convert]::ToBase64String((Get-Content "$($script_root)\output\image\incident.png" -Encoding byte))+'"'
-[string]$base64_advisory = '"'+[convert]::ToBase64String((Get-Content "$($script_root)\output\image\advisory.png" -Encoding byte))+'"'
 
 #Assign the Client/Application ID, Client Secret and Tenant Domain
 $ClientID = $config.options.clientID
@@ -335,8 +333,6 @@ Write-Host "Sending Alert for $($record.id)"
 $mail_body = $mail_Body.Replace("image/advisory.png","cid:advisory")
 $mail_body = $mail_Body.Replace("image/incident.png","cid:incident")
 $mail_body = $mail_Body.Replace("image/healthy.png","cid:healthy")
-$mail_body = $mail_Body.Replace("""","\""")
-$mail_body = '"'+$mail_body+'"'
 
 try {
 #MS Graph API Starts Here
@@ -344,64 +340,75 @@ $body = @{grant_type="client_credentials";scope="https://graph.microsoft.com/.de
 $oauth = Invoke-RestMethod -Method Post -Uri https://login.microsoftonline.com/$tenantdomain/oauth2/v2.0/token -Body $body
 $headerParams = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
  
-$ToAddressJSON = $toAddress | ForEach-Object{'{"EmailAddress": {"Address": "'+$_+'"}},'}
-$ToAddressJSON = ([string]$ToAddressJSON).Substring(0, ([string]$ToAddressJSON).Length - 1)
+#base64 images
+[string]$base64_healthy = [convert]::ToBase64String((Get-Content "$($script_root)\output\image\healthy.png" -Encoding byte))
+[string]$base64_incident = [convert]::ToBase64String((Get-Content "$($script_root)\output\image\incident.png" -Encoding byte))
+[string]$base64_advisory = [convert]::ToBase64String((Get-Content "$($script_root)\output\image\advisory.png" -Encoding byte))
 
-$mailSubject = '"' + $mailSubject + '"'
-#$newBody = '"body" : {	"contentType": "HTML",	"content": "'+$mail_body+'"	},'
+#recipients
+$toAddressJSON = @()
+$toAddress | ForEach-Object {
+	$toAddressJSON += @{EmailAddress = @{Address = $_}}
+}
+
 $uri = "https://graph.microsoft.com/v1.0/users/$($fromAddress)/sendmail"
-$mailbody = 
-@"
-{
-"message" : {
-	"subject": $mailSubject,
-	"body" : {
-		"contentType": "HTML",
-		"content": $mail_Body
-		},
-  "toRecipients": [
-	$ToAddressJSON
-   ],
-   "attachments":[
-	   {
-		"@odata.type":"#microsoft.graph.fileAttachment",
-		"contentID":"advisory",
-		"name":"advisory",
-		"IsInline":true,
-		"contentType":"image/png",
-		"contentBytes":$base64_advisory
-	   },
-	   {
-		"@odata.type":"#microsoft.graph.fileAttachment",
-		"contentID":"incident",
-		"name":"incident",
-		"IsInline":true,
-		"contentType":"image/png",
-		"contentBytes":$base64_incident
-	   },
-	   {
-		"@odata.type":"#microsoft.graph.fileAttachment",
-		"contentID":"healthy",
-		"name":"healthy",
-		"IsInline":true,
-		"contentType":"image/png",
-		"contentBytes":$base64_healthy
-	   }	   
-   ]
+
+#message
+$mailBody = @{
+	message = @{
+		subject = $mailSubject
+		body = @{
+			contentType = "HTML"
+			content = $mail_Body
+		}
+		toRecipients = @(
+			$ToAddressJSON
+		)
+		internetMessageHeaders = @(
+			@{
+				name = "X-Mailer"
+				value = "Get-Office365HealthReport by june.castillote@gmail.com"
+			}
+		)
+		attachments = @(
+			@{
+				"@odata.type" = "#microsoft.graph.fileAttachment"
+				"contentID" = "advisory"
+				"name" = "advisory"
+				"IsInline" = $true
+				"contentType" = "image/png"
+				"contentBytes" = $base64_advisory
+			}
+			@{
+				"@odata.type" = "#microsoft.graph.fileAttachment"
+				"contentID" = "incident"
+				"name" = "incident"
+				"IsInline" = $true
+				"contentType" = "image/png"
+				"contentBytes" = $base64_incident
+			}
+			@{
+				"@odata.type" = "#microsoft.graph.fileAttachment"
+				"contentID" = "healthy"
+				"name" = "healthy"
+				"IsInline" = $true
+				"contentType" = "image/png"
+				"contentBytes" = $base64_healthy
+			}
+		)
+	}
 }
-}
-"@
+$mailBody = $mailBody | ConvertTo-JSON -Depth 4
 Invoke-RestMethod -Method Post -Uri $uri -Body $mailbody -Headers $headerParams -ContentType application/json
 #Write-Host "Report Sent!"
 #MS Graph API Ends Here
 }
 catch {
-	Write-Host "Failed to send report!"
+	Write-Host "Failed to send Alert for $($record.id)" -ForegroundColor Red
 	$_.Exception | Format-List
 }
 }
-}	
-			
+}			
 		}
 		
 		}
@@ -411,7 +418,5 @@ catch {
 		Write-Host "Old Records File is not found. This is considered as first run. No report is generated or sent."
 	}
 }
-
-
 Rename-Item $newCSV $oldCSV
 Stop-Transcript
