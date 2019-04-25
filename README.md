@@ -28,13 +28,16 @@ Requirements</h3>
 <li>Application Registration in Azure AD (Application ID + Key + Permissions)</li>
 <li>Exchange Online Mailbox (User or Shared Mailbox, for sending reports)Script Download /&nbsp; Change Logs</li>
 </ul>
-v1.4 (latest) -&nbsp;<a href="https://github.com/junecastillote/Get-O365HealthReport/tree/v1.4">https://github.com/junecastillote/Get-O365HealthReport/tree/v1.4</a>
-
+v1.5 (latest) -&nbsp;<a href="https://github.com/junecastillote/Get-O365HealthReport">https://github.com/junecastillote/Get-O365HealthReport</a>
+<ul>
+<li>code cleanup</li>
+<li>added code to cater to the new App Registration Keys special characters</li>
+</ul>
+v1.4
 <ul>
 <li>code cleanup</li>
 <li>fixed JSON conversion for email report</li>
 </ul>
-
 v1.3
 <ul>
 <li>added "exclusion" feature. (requested from&nbsp;this <a href="https://github.com/junecastillote/Get-O365HealthReport/issues/1">issue</a>)</li>
