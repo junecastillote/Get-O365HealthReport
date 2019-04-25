@@ -446,7 +446,7 @@ if (Test-Path $oldCSV)
 								contentType = "HTML"
 								content = $mail_Body
 							}
-							ccRecipients = @(
+							toRecipients = @(
 								$ToAddressJSON
 							)
 							internetMessageHeaders = @(
