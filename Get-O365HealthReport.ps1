@@ -1,4 +1,42 @@
-<#	
+<#PSScriptInfo
+
+.VERSION 1.5
+
+.GUID 600c9c95-133e-4ef6-aaba-7924b5a45026
+
+.AUTHOR June Castillote
+
+.COMPANYNAME www.lazyexchangeadmin.com
+
+.COPYRIGHT june.castillote@gmail.com
+
+.TAGS
+
+.LICENSEURI
+
+.PROJECTURI https://github.com/junecastillote/Get-O365HealthReport
+
+.ICONURI
+
+.EXTERNALMODULEDEPENDENCIES 
+
+.REQUIREDSCRIPTS
+
+.EXTERNALSCRIPTDEPENDENCIES
+
+.RELEASENOTES
+
+
+.PRIVATEDATA
+
+#>
+
+<#
+	.DESCRIPTION
+		For more details and usage instruction, please visit the link:
+		https://www.lazyexchangeadmin.com/2018/10/shd365.html
+		https://github.com/junecastillote/Get-O365HealthReport
+
 	.NOTES
 	===========================================================================
 	 Created on:   	7-August-2018
@@ -15,17 +53,16 @@
 	.SYNOPSIS
 		This script utilize the Office 365 Management API v2 to retrieve the service health status
 		and the Microsoft Graph API to send the report thru email using an Office 365 Mailbox.
-
-	.DESCRIPTION
-		For more details and usage instruction, please visit the link:
-		https://www.lazyexchangeadmin.com/2018/10/shd365.html
-		https://github.com/junecastillote/Get-O365HealthReport		
 				
 	.EXAMPLE
 		.\Get-o365HealthReport.ps1
 #>
 
 <# CHANGE LOGS:
+
+v1.5
+- code cleanup
+- added code to cater to the new App Registration Keys special characters
 
 v1.4
 - code cleanup
@@ -61,7 +98,7 @@ v1.0
 #>
 
 #Requires -Version 4.0
-$scriptVersion = "1.4"
+$scriptVersion = "1.5"
 
 #get root path of the script
 $script_root = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
@@ -103,14 +140,39 @@ $workLoadStringArrays = @(
 	"Yammer Enterprise,0"	
 )
 
+#the App Registration keys now contain special characters that are not valid for use as XML values.
+#this section parses the clientSecret value and apply escape characters
+$configRaw = Get-Content "$($script_root)\resource\config.xml"
+$newXmlConfig=@()
+foreach ($line in $configRaw)
+{
+	if ($line -match "clientSecret") 
+	{
+		$line = $line.Replace("&","&amp;")
+		$line = $line.Replace("<","&lt;")
+		$line = $line.Replace(">","&gt;")
+		#$line = $line.Replace("`"","&quot;")
+		#$line = $line.Replace("`'","&apos;")
+		$newXmlConfig += $line
+	}
+	else 
+	{
+		$newXmlConfig += $line
+	}
+}
+#$newXmlConfig
+
 #import config.xml
-[xml]$config = Get-Content "$($script_root)\resource\config.xml"
+#[xml]$config = Get-Content "$($script_root)\resource\config.xml"
+[xml]$config = $newXmlConfig
 
 #import exclusions
-if (Test-Path "$($script_root)\resource\exclusions.csv") {
+if (Test-Path "$($script_root)\resource\exclusions.csv") 
+{
 	$exclusions = Import-Csv "$($script_root)\resource\exclusions.csv" | Where-Object {$_.Exclude -eq 1}
 }
-else {
+else 
+{
 	#if the exclusions.csv file does not exist, create the file with default values
 	$workLoadStringArrays | ConvertFrom-Csv | Export-Csv "$($script_root)\resource\exclusions.csv" -NoTypeInformation
 	$exclusions = Import-Csv "$($script_root)\resource\exclusions.csv" | Where-Object {$_.Exclude -eq 1}
@@ -126,9 +188,11 @@ $css_string = $css_string -join "`n" #convert to multiline string
 
 #if testMode=true in config.xml, this will populate the initial seed with test data
 #set testMode=false to work with realtime data
-if ( $config.options.testMode -eq $true){
+if ( $config.options.testMode -eq $true)
+{
 	Write-Host "---Test Mode---"
-	if (Test-Path $oldCSV){
+	if (Test-Path $oldCSV)
+	{
 		Remove-Item $oldCSV -Force -Confirm:$false
 		Copy-Item -Path $testCSv -Destination $oldCSV
 	}
@@ -145,7 +209,8 @@ $ClientSecret = $config.options.clientSecret
 $tenantdomain = $config.options.tenantDomain
 
 # Office 365 Management API starts here
-try {
+try 
+{
 	$body = @{grant_type="client_credentials";resource="https://manage.office.com";client_id=$ClientID;client_secret=$ClientSecret}
 	$oauth = Invoke-RestMethod -Method Post -Uri "https://login.microsoftonline.com/$($tenantdomain)/oauth2/token?api-version=1.0" -Body $body
 	$headerParams = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
@@ -158,8 +223,9 @@ try {
 	#$historicalstatus = (Invoke-RestMethod -Uri "https://manage.office.com/api/v1.0/$($tenantdomain)/ServiceComms/HistoricalStatus" -Headers $headerParams -Method Get -Verbose)
 	$incidents = $messages.Value | Where-Object {$_.MessageType -eq 'Incident'}
 	#$messages
-	}
-catch {
+}
+catch 
+{
 	#$_.Exception.Message
 	$_.Exception | Format-List
 	#Stop-Transcript
@@ -167,38 +233,72 @@ catch {
 }
 # Office 365 Management API ends here
 
-#compile new results
-$newResult = @()
-foreach ($message in $incidents){
+# MS Graph API Token Get starts here
+if ($sendEmail -eq $true)
+{
+	try 
+	{
+		#MS Graph API Starts Here
+		$body = @{grant_type="client_credentials";scope="https://graph.microsoft.com/.default";client_id=$ClientID;client_secret=$ClientSecret}
+		$oauth = Invoke-RestMethod -Method Post -Uri https://login.microsoftonline.com/$tenantdomain/oauth2/v2.0/token -Body $body
+		$headerParams = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
+		
+		#base64 images
+		[string]$base64_healthy = [convert]::ToBase64String((Get-Content "$($script_root)\output\image\healthy.png" -Encoding byte))
+		[string]$base64_incident = [convert]::ToBase64String((Get-Content "$($script_root)\output\image\incident.png" -Encoding byte))
+		[string]$base64_advisory = [convert]::ToBase64String((Get-Content "$($script_root)\output\image\advisory.png" -Encoding byte))
 
-if ($exclusions.Workload -notcontains $message.WorkloadDisplayName) {
-	if ($statusStringArray -contains $message.Status) {
-	#get the index of the latest message in the event.
-	[int]$msgCount = ($message.Messages.Count)-1
+		#recipients
+		$toAddressJSON = @()
+		$toAddress | ForEach-Object {
+			$toAddressJSON += @{EmailAddress = @{Address = $_}}
+		}
 
-	#build the NEW report object
-	$temp = "" | Select-Object ID, Classification, Title, Workload, Status, StartTime, LastUpdatedTime, EndTime, ActionType, AffectedTenantCount, Message, MessageType, WorkloadDisplayName, Feature, FeatureDisplayName, PostIncidentDocumentUrl, Severity, ImpactDescription
-	$temp.ID = $message.ID
-	$temp.Title = $message.Title
-	$temp.Classification = $message.Classification
-	$temp.Workload = $message.Workload
-	$temp.WorkloadDisplayName = $message.WorkloadDisplayName
-	$temp.Status = $message.Status
-	$temp.Feature = $message.Feature
-	$temp.FeatureDisplayName = $message.FeatureDisplayName
-	$temp.MessageType = $message.MessageType
-	if ($message.StartTime) {$temp.StartTime = [datetime]$message.StartTime}
-	if ($message.LastUpdatedTime) {$temp.LastUpdatedTime = [datetime]$message.LastUpdatedTime}
-	if ($message.EndTime) {$temp.EndTime = [datetime]$message.EndTime}
-	$temp.Message = $message.Messages[$msgCount].MessageText
-	$temp.ActionType = $message.ActionType
-	$temp.AffectedTenantCount = $message.AffectedTenantCount
-	$temp.PostIncidentDocumentUrl = $message.PostIncidentDocumentUrl
-	$temp.Severity = $message.Severity
-	$temp.ImpactDescription = $message.ImpactDescription
-	$newResult += $temp
+		$mailApiUri = "https://graph.microsoft.com/v1.0/users/$($fromAddress)/sendmail"
+	}
+	catch 
+	{
+		#$_.Exception.Message
+		$_.Exception | Format-List
+		#Stop-Transcript
+		EXIT
 	}
 }
+
+#compile new results
+$newResult = @()
+foreach ($message in $incidents)
+{
+	if ($exclusions.Workload -notcontains $message.WorkloadDisplayName) 
+	{
+		if ($statusStringArray -contains $message.Status) 
+		{
+			#get the index of the latest message in the event.
+			[int]$msgCount = ($message.Messages.Count)-1
+
+			#build the NEW report object
+			$temp = "" | Select-Object ID, Classification, Title, Workload, Status, StartTime, LastUpdatedTime, EndTime, ActionType, AffectedTenantCount, Message, MessageType, WorkloadDisplayName, Feature, FeatureDisplayName, PostIncidentDocumentUrl, Severity, ImpactDescription
+			$temp.ID = $message.ID
+			$temp.Title = $message.Title
+			$temp.Classification = $message.Classification
+			$temp.Workload = $message.Workload
+			$temp.WorkloadDisplayName = $message.WorkloadDisplayName
+			$temp.Status = $message.Status
+			$temp.Feature = $message.Feature
+			$temp.FeatureDisplayName = $message.FeatureDisplayName
+			$temp.MessageType = $message.MessageType
+			if ($message.StartTime) {$temp.StartTime = [datetime]$message.StartTime}
+			if ($message.LastUpdatedTime) {$temp.LastUpdatedTime = [datetime]$message.LastUpdatedTime}
+			if ($message.EndTime) {$temp.EndTime = [datetime]$message.EndTime}
+			$temp.Message = $message.Messages[$msgCount].MessageText
+			$temp.ActionType = $message.ActionType
+			$temp.AffectedTenantCount = $message.AffectedTenantCount
+			$temp.PostIncidentDocumentUrl = $message.PostIncidentDocumentUrl
+			$temp.Severity = $message.Severity
+			$temp.ImpactDescription = $message.ImpactDescription
+			$newResult += $temp
+		}
+	}
 }
 #process the retrieved records
 $newResult | Sort-Object LastUpdatedTime -Descending | export-Csv -notypeInformation $newCSV
@@ -212,13 +312,14 @@ Write-Host "Retrieved Records: $($newResult.Count)"
 $updatedRecord = @()
 
 #import the old events
-if (Test-Path $oldCSV){
-	
+if (Test-Path $oldCSV)
+{	
 	$oldResult = Import-Csv $oldCSV | Sort-Object Classification -Descending
 	Remove-Item $oldCSV
 	
-	foreach ($newRecord in $newResult){
-	$temp = "" | Select-Object EventType, ID, Classification, Title, Workload, Status, StartTime, LastUpdatedTime, EndTime, ActionType, AffectedTenantCount, Message, MessageType, WorkloadDisplayName, Feature, FeatureDisplayName, PostIncidentDocumentUrl, Severity, ImpactDescription
+	foreach ($newRecord in $newResult)
+	{
+		$temp = "" | Select-Object EventType, ID, Classification, Title, Workload, Status, StartTime, LastUpdatedTime, EndTime, ActionType, AffectedTenantCount, Message, MessageType, WorkloadDisplayName, Feature, FeatureDisplayName, PostIncidentDocumentUrl, Severity, ImpactDescription
 		
 		#search ID (if exists)
 		$oldRecord = $oldResult | Where-Object {$_.ID -eq $newRecord.ID}
@@ -252,27 +353,28 @@ if (Test-Path $oldCSV){
 			}
 		}
 		#if ID does not exist, new record
-		else {			
-				$temp.EventType = "New"
-				$temp.ID = $newRecord.ID
-				$temp.Title = $newRecord.Title
-				$temp.Classification = $newRecord.Classification
-				$temp.Workload = $newRecord.Workload
-				$temp.WorkloadDisplayName = $newRecord.WorkloadDisplayName
-				$temp.Status = $newRecord.Status
-				$temp.Feature = $newRecord.Feature
-				$temp.FeatureDisplayName = $newRecord.FeatureDisplayName
-				$temp.MessageType = $newRecord.MessageType
-				$temp.StartTime = $newRecord.StartTime
-				$temp.LastUpdatedTime = $newRecord.LastUpdatedTime
-				$temp.EndTime = $newRecord.EndTime
-				$temp.Message = $newRecord.Message
-				$temp.ActionType = $newRecord.ActionType
-				$temp.AffectedTenantCount = $newRecord.AffectedTenantCount
-				$temp.PostIncidentDocumentUrl = $newRecord.PostIncidentDocumentUrl
-				$temp.Severity = $newRecord.Severity
-				$temp.ImpactDescription = $newRecord.ImpactDescription
-				$updatedRecord += $temp
+		else 
+		{			
+			$temp.EventType = "New"
+			$temp.ID = $newRecord.ID
+			$temp.Title = $newRecord.Title
+			$temp.Classification = $newRecord.Classification
+			$temp.Workload = $newRecord.Workload
+			$temp.WorkloadDisplayName = $newRecord.WorkloadDisplayName
+			$temp.Status = $newRecord.Status
+			$temp.Feature = $newRecord.Feature
+			$temp.FeatureDisplayName = $newRecord.FeatureDisplayName
+			$temp.MessageType = $newRecord.MessageType
+			$temp.StartTime = $newRecord.StartTime
+			$temp.LastUpdatedTime = $newRecord.LastUpdatedTime
+			$temp.EndTime = $newRecord.EndTime
+			$temp.Message = $newRecord.Message
+			$temp.ActionType = $newRecord.ActionType
+			$temp.AffectedTenantCount = $newRecord.AffectedTenantCount
+			$temp.PostIncidentDocumentUrl = $newRecord.PostIncidentDocumentUrl
+			$temp.Severity = $newRecord.Severity
+			$temp.ImpactDescription = $newRecord.ImpactDescription
+			$updatedRecord += $temp
 		}				
 	}
 	Write-Host "Updated Records: $($updatedRecord.Count)"
@@ -326,95 +428,78 @@ if (Test-Path $oldCSV){
 			$mail_Body = $mail_Body1 + $css_string + $mail_Body2
 			$mail_body | Out-File "$($script_root)\output\$($record.ID).html"
 
-#send email if new or updated events are found
-if ($sendEmail -eq $true) {
+			#send email if new or updated events are found
+			if ($sendEmail -eq $true) {
 
-Write-Host "Sending Alert for $($record.id)"
-$mail_body = $mail_Body.Replace("image/advisory.png","cid:advisory")
-$mail_body = $mail_Body.Replace("image/incident.png","cid:incident")
-$mail_body = $mail_Body.Replace("image/healthy.png","cid:healthy")
+			Write-Host "Sending Alert for $($record.id)"
+			$mail_body = $mail_Body.Replace("image/advisory.png","cid:advisory")
+			$mail_body = $mail_Body.Replace("image/incident.png","cid:incident")
+			$mail_body = $mail_Body.Replace("image/healthy.png","cid:healthy")
 
-try {
-#MS Graph API Starts Here
-$body = @{grant_type="client_credentials";scope="https://graph.microsoft.com/.default";client_id=$ClientID;client_secret=$ClientSecret}
-$oauth = Invoke-RestMethod -Method Post -Uri https://login.microsoftonline.com/$tenantdomain/oauth2/v2.0/token -Body $body
-$headerParams = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
- 
-#base64 images
-[string]$base64_healthy = [convert]::ToBase64String((Get-Content "$($script_root)\output\image\healthy.png" -Encoding byte))
-[string]$base64_incident = [convert]::ToBase64String((Get-Content "$($script_root)\output\image\incident.png" -Encoding byte))
-[string]$base64_advisory = [convert]::ToBase64String((Get-Content "$($script_root)\output\image\advisory.png" -Encoding byte))
-
-#recipients
-$toAddressJSON = @()
-$toAddress | ForEach-Object {
-	$toAddressJSON += @{EmailAddress = @{Address = $_}}
-}
-
-$uri = "https://graph.microsoft.com/v1.0/users/$($fromAddress)/sendmail"
-
-#message
-$mailBody = @{
-	message = @{
-		subject = $mailSubject
-		body = @{
-			contentType = "HTML"
-			content = $mail_Body
-		}
-		toRecipients = @(
-			$ToAddressJSON
-		)
-		internetMessageHeaders = @(
-			@{
-				name = "X-Mailer"
-				value = "Get-Office365HealthReport by june.castillote@gmail.com"
+				try
+				{
+					#message
+					$mailBody = @{
+						message = @{
+							subject = $mailSubject
+							body = @{
+								contentType = "HTML"
+								content = $mail_Body
+							}
+							ccRecipients = @(
+								$ToAddressJSON
+							)
+							internetMessageHeaders = @(
+								@{
+									name = "X-Mailer"
+									value = "Get-Office365HealthReport by june.castillote@gmail.com"
+								}
+							)
+							attachments = @(
+								@{
+									"@odata.type" = "#microsoft.graph.fileAttachment"
+									"contentID" = "advisory"
+									"name" = "advisory"
+									"IsInline" = $true
+									"contentType" = "image/png"
+									"contentBytes" = $base64_advisory
+								}
+								@{
+									"@odata.type" = "#microsoft.graph.fileAttachment"
+									"contentID" = "incident"
+									"name" = "incident"
+									"IsInline" = $true
+									"contentType" = "image/png"
+									"contentBytes" = $base64_incident
+								}
+								@{
+									"@odata.type" = "#microsoft.graph.fileAttachment"
+									"contentID" = "healthy"
+									"name" = "healthy"
+									"IsInline" = $true
+									"contentType" = "image/png"
+									"contentBytes" = $base64_healthy
+								}
+							)
+						}
+					}
+					$mailBody = $mailBody | ConvertTo-JSON -Depth 4
+					Invoke-RestMethod -Method Post -Uri $mailApiUri -Body $mailbody -Headers $headerParams -ContentType application/json
+				}
+				catch 
+				{
+					Write-Host "Failed to send Alert for $($record.id)" -ForegroundColor Red
+					$_.Exception | Format-List
+				}
 			}
-		)
-		attachments = @(
-			@{
-				"@odata.type" = "#microsoft.graph.fileAttachment"
-				"contentID" = "advisory"
-				"name" = "advisory"
-				"IsInline" = $true
-				"contentType" = "image/png"
-				"contentBytes" = $base64_advisory
-			}
-			@{
-				"@odata.type" = "#microsoft.graph.fileAttachment"
-				"contentID" = "incident"
-				"name" = "incident"
-				"IsInline" = $true
-				"contentType" = "image/png"
-				"contentBytes" = $base64_incident
-			}
-			@{
-				"@odata.type" = "#microsoft.graph.fileAttachment"
-				"contentID" = "healthy"
-				"name" = "healthy"
-				"IsInline" = $true
-				"contentType" = "image/png"
-				"contentBytes" = $base64_healthy
-			}
-		)
+		}			
 	}
-}
-$mailBody = $mailBody | ConvertTo-JSON -Depth 4
-Invoke-RestMethod -Method Post -Uri $uri -Body $mailbody -Headers $headerParams -ContentType application/json
-#Write-Host "Report Sent!"
-#MS Graph API Ends Here
-}
-catch {
-	Write-Host "Failed to send Alert for $($record.id)" -ForegroundColor Red
-	$_.Exception | Format-List
-}
-}
-}			
-		}
 		
-		}
-		
-		else {
-	if ( $config.options.testMode -eq $false){
+}
+else 
+{
+	if ( $config.options.testMode -eq $false)
+	{
 		Write-Host "Old Records File is not found. This is considered as first run. No report is generated or sent."
 	}
 }
