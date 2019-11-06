@@ -2,10 +2,10 @@
 <options
 	sendEmail="true"
 	testMode="true"
+	organizationName="ORGANIZATION"
 	clientId="CLIENT ID HERE"
 	clientSecret="CLIENT SECRET HERE"
 	tenantDomain="TENANT DOMAIN HERE"
 	toAddress="RECIPIENT ADDRESS 1,RECIPIENT ADDRESS 2"
 	fromAddress="SENDER ADDRESS"
-	mailSubject="Office 365 Service Health Dashboard"
 />
