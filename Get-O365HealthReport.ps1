@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 1.5.1
+.VERSION 1.5.2
 
 .GUID 600c9c95-133e-4ef6-aaba-7924b5a45026
 
@@ -53,6 +53,9 @@
 
 <# CHANGE LOGS:
 
+v1.5.2
+- Added one line to force TLS 1.2
+
 v1.5
 - code cleanup
 - added code to cater to the new App Registration Keys special characters
@@ -91,7 +94,8 @@ v1.0
 #>
 
 #Requires -Version 4.0
-$scriptVersion = "1.5.1"
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$scriptVersion = "1.5.2"
 
 #get root path of the script
 $script_root = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
