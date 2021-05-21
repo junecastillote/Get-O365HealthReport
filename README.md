@@ -1,5 +1,7 @@
 # Get-O365HealthReport
 
-This script demonstrates how to retrieve the Office 365 Service Health Data using the Office 365 Management API, and send the email report using Microsoft Graph API.
+Thank you for your interest, but this project has been discontinued.
 
-[https://lazyexchangeadmin.com/get-o365healthreport/](https://lazyexchangeadmin.com/get-o365healthreport/)
+You can find the new version that replaces this tool, go to the [MS365HealthReport](https://github.com/junecastillote/MS365HealthReport) repository.
+
+June
